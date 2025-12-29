@@ -1,7 +1,6 @@
 from random import randint
 import pygame
 
-
 # Константы для размеров поля и сетки
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
 GRID_SIZE = 20
@@ -52,7 +51,7 @@ class Apple(GameObject):
         """Задать случайную позицию яблока."""
         self.position = (
             randint(0, GRID_WIDTH - 1) * GRID_SIZE,
-            randint(0, GRID_HEIGHT - 1) * GRID_SIZE
+            randint(0, GRID_HEIGHT - 1) * GRID_SIZE,
         )
 
     def draw(self):
@@ -68,7 +67,7 @@ class Snake(GameObject):
     def __init__(self):
         start_position = (
             GRID_WIDTH // 2 * GRID_SIZE,
-            GRID_HEIGHT // 2 * GRID_SIZE
+            GRID_HEIGHT // 2 * GRID_SIZE,
         )
         super().__init__(start_position, SNAKE_COLOR)
         self.positions = [start_position]
@@ -94,7 +93,7 @@ class Snake(GameObject):
 
         new_head = (
             (head_x + dir_x * GRID_SIZE) % SCREEN_WIDTH,
-            (head_y + dir_y * GRID_SIZE) % SCREEN_HEIGHT
+            (head_y + dir_y * GRID_SIZE) % SCREEN_HEIGHT,
         )
 
         self.positions.insert(0, new_head)
