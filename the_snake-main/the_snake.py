@@ -1,3 +1,4 @@
+"""Snake game implementation using Pygame."""
 from random import randint
 import pygame
 
@@ -105,7 +106,16 @@ class Snake(GameObject):
 
     def reset(self):
         """Сбросить состояние змейки."""
-        self.__init__()
+        start_position = (
+            GRID_WIDTH // 2 * GRID_SIZE,
+            GRID_HEIGHT // 2 * GRID_SIZE,
+        )
+        self.position = start_position
+        self.positions = [start_position]
+        self.length = 1
+        self.direction = RIGHT
+        self.next_direction = None
+        self.last = None
 
     def draw(self):
         """Отрисовать змейку."""
@@ -126,13 +136,17 @@ def handle_keys(game_object):
             pygame.quit()
             raise SystemExit
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP and game_object.direction != DOWN:
+            if (event.key == pygame.K_UP
+                    and game_object.direction != DOWN):
                 game_object.next_direction = UP
-            elif event.key == pygame.K_DOWN and game_object.direction != UP:
+            elif (event.key == pygame.K_DOWN
+                  and game_object.direction != UP):
                 game_object.next_direction = DOWN
-            elif event.key == pygame.K_LEFT and game_object.direction != RIGHT:
+            elif (event.key == pygame.K_LEFT
+                  and game_object.direction != RIGHT):
                 game_object.next_direction = LEFT
-            elif event.key == pygame.K_RIGHT and game_object.direction != LEFT:
+            elif (event.key == pygame.K_RIGHT
+                  and game_object.direction != LEFT):
                 game_object.next_direction = RIGHT
 
 
