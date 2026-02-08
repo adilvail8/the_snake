@@ -1,12 +1,13 @@
+"""Conftest module for the_snake tests."""
 import os
 import sys
 from multiprocessing import Process
 from pathlib import Path
 from typing import Any
 
-from pygame.time import Clock
 import pytest
 import pytest_timeout
+from pygame.time import Clock
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 sys.path.append(str(BASE_DIR))
@@ -18,19 +19,21 @@ TIMEOUT_ASSERT_MSG = (
     'Проект работает некорректно, проверка прервана.\n'
     'Вероятные причины ошибки:\n'
     '1. Исполняемый код (например, вызов функции `main()`) оказался в '
-    'глобальной зоне видимости. Как исправить: вызов функции `main` поместите '
-    'внутрь конструкции `if __name__ == "__main__":`.\n'
-    '2. В цикле `while True` внутри функции `main` отсутствует вызов метода '
-    '`tick` объекта `clock`. Не изменяйте прекод в этой части.'
+    'глобальной зоне видимости. Как исправить: вызов функции `main` '
+    'поместите внутрь конструкции `if __name__ == "__main__":`.\n'
+    '2. В цикле `while True` внутри функции `main` отсутствует вызов '
+    'метода `tick` объекта `clock`. Не изменяйте прекод в этой части.'
 )
 
 
 def import_the_snake():
-    import the_snake  # noqa
+    """Import the_snake module."""
+    import the_snake  # noqa: F401
 
 
 @pytest.fixture(scope='session')
 def snake_import_test():
+    """Test if the_snake module can be imported without hanging."""
     check_import_process = Process(target=import_the_snake)
     check_import_process.start()
     pid = check_import_process.pid
@@ -42,6 +45,7 @@ def snake_import_test():
 
 @pytest.fixture(scope='session')
 def _the_snake(snake_import_test):
+    """Import and validate the_snake module."""
     try:
         import the_snake
     except ImportError as error:
@@ -51,7 +55,8 @@ def _the_snake(snake_import_test):
         )
     for class_name in ('GameObject', 'Snake', 'Apple'):
         assert hasattr(the_snake, class_name), (
-            f'Убедитесь, что в модуле `the_snake` определен класс `{class_name}`.'
+            f'Убедитесь, что в модуле `the_snake` определен класс '
+            f'`{class_name}`.'
         )
     return the_snake
 
@@ -73,11 +78,13 @@ pytest_timeout.write = write_timeout_reasons
 
 
 def _create_game_object(class_name, module):
+    """Create game object instance."""
     try:
         return getattr(module, class_name)()
     except TypeError as error:
         raise AssertionError(
-            f'При создании объекта класса `{class_name}` произошла ошибка:\n'
+            f'При создании объекта класса `{class_name}` произошла '
+            f'ошибка:\n'
             f'`{type(error).__name__}: {error}`\n'
             f'Если в конструктор класса `{class_name}` помимо параметра '
             '`self` передаются какие-то ещё параметры - убедитесь, что для '
@@ -88,24 +95,30 @@ def _create_game_object(class_name, module):
 
 @pytest.fixture
 def game_object(_the_snake):
+    """Create GameObject instance."""
     return _create_game_object('GameObject', _the_snake)
 
 
 @pytest.fixture
 def snake(_the_snake):
+    """Create Snake instance."""
     return _create_game_object('Snake', _the_snake)
 
 
 @pytest.fixture
 def apple(_the_snake):
+    """Create Apple instance."""
     return _create_game_object('Apple', _the_snake)
 
 
 class StopInfiniteLoop(Exception):
+    """Exception to break infinite loops in tests."""
+
     pass
 
 
 def loop_breaker_decorator(func):
+    """Decorator to break infinite loops after 2 calls."""
     call_counter = 0
 
     def wrapper(*args, **kwargs):
@@ -120,6 +133,7 @@ def loop_breaker_decorator(func):
 
 @pytest.fixture
 def modified_clock(_the_snake):
+    """Modify clock to break infinite loops."""
     class _Clock:
         def __init__(self, clock_obj: Clock) -> None:
             self.clock = clock_obj
