@@ -1,6 +1,5 @@
 """Tests for the_snake main function."""
 import pytest
-
 from conftest import StopInfiniteLoop
 
 
