@@ -7,7 +7,6 @@ from typing import Any
 
 import pytest
 import pytest_timeout
-from pygame.time import Clock
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 sys.path.append(str(BASE_DIR))
@@ -135,6 +134,8 @@ def loop_breaker_decorator(func):
 @pytest.fixture
 def modified_clock(_the_snake):
     """Modify clock to break infinite loops."""
+    from pygame.time import Clock
+
     class _Clock:
         def __init__(self, clock_obj: Clock) -> None:
             self.clock = clock_obj
