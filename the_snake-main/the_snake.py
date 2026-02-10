@@ -1,6 +1,7 @@
 """Snake game implementation using Pygame."""
 from random import randint
 
+
 import pygame
 
 # Константы для размеров поля и сетки
