@@ -1,1 +1,5 @@
-"""Minimal pygame stub for tests."""
+"""Minimal pygame stub for CI tests."""
+
+
+class Surface:
+    """Stub for pygame.Surface."""
