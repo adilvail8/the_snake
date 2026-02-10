@@ -2,5 +2,5 @@
 
 
 def get():
-    """Return empty event list."""
+    """Return an empty list of events."""
     return []

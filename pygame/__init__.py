@@ -13,56 +13,26 @@ K_ESCAPE = 27
 
 def init():
     """Initialize pygame (stub)."""
+    return None
 
 
 def quit():
     """Quit pygame (stub)."""
+    return None
 
 
 class Surface:
     """Represent a drawable surface (stub)."""
 
-
-class _Display:
-    """Provide display-related functions."""
-
-    def set_mode(self, size):
-        """Create and return a dummy surface."""
-        return Surface()
-
-    def set_caption(self, title):
-        """Set window caption (stub)."""
+    def fill(self, color):
+        """Fill the surface with a color (stub)."""
+        return None
 
 
-class _Time:
-    """Provide time-related functions."""
+from pygame import display as display  # noqa: E402
+from pygame import draw as draw  # noqa: E402
+from pygame import event as event  # noqa: E402
+from pygame import rect as rect  # noqa: E402
+from pygame import time as time  # noqa: E402
 
-    from pygame.time import Clock  # type: ignore
-
-
-class _Event:
-    """Provide event-related functions."""
-
-    def get(self):
-        """Return an empty list of events."""
-        return []
-
-
-class _Draw:
-    """Provide drawing-related functions."""
-
-    def rect(self, surface, color, rect_obj, width=0):
-        """Draw a rectangle (stub)."""
-
-
-class _Rect:
-    """Provide rectangle class."""
-
-    from pygame.rect import Rect  # type: ignore
-
-
-display = _Display()
-time = _Time()
-event = _Event()
-draw = _Draw()
-Rect = _Rect.Rect
+Rect = rect.Rect
