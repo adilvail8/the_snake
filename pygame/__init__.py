@@ -1,11 +1,9 @@
 """Minimal pygame stub for CI tests."""
 
 
-# Event types
 QUIT = 0
 KEYDOWN = 1
 
-# Key codes
 K_UP = 273
 K_DOWN = 274
 K_LEFT = 276
@@ -14,59 +12,55 @@ K_ESCAPE = 27
 
 
 def init():
-    """Stub for pygame.init()."""
+    """Initialize pygame (stub)."""
 
 
 def quit():
-    """Stub for pygame.quit()."""
+    """Quit pygame (stub)."""
 
 
 class Surface:
-    """Stub for pygame.Surface."""
-
-
-# --- submodules binding ---
+    """Represent a drawable surface (stub)."""
 
 
 class _Display:
-    """Stub for pygame.display module."""
+    """Provide display-related functions."""
 
     def set_mode(self, size):
-        """Return dummy Surface."""
+        """Create and return a dummy surface."""
         return Surface()
 
     def set_caption(self, title):
-        """Stub for set_caption."""
+        """Set window caption (stub)."""
 
 
 class _Time:
-    """Stub for pygame.time module."""
+    """Provide time-related functions."""
 
     from pygame.time import Clock  # type: ignore
 
 
 class _Event:
-    """Stub for pygame.event module."""
+    """Provide event-related functions."""
 
     def get(self):
-        """Return empty event list."""
+        """Return an empty list of events."""
         return []
 
 
 class _Draw:
-    """Stub for pygame.draw module."""
+    """Provide drawing-related functions."""
 
     def rect(self, surface, color, rect_obj, width=0):
-        """Stub for draw.rect."""
+        """Draw a rectangle (stub)."""
 
 
 class _Rect:
-    """Stub for pygame.Rect."""
+    """Provide rectangle class."""
 
     from pygame.rect import Rect  # type: ignore
 
 
-# Public pygame attributes
 display = _Display()
 time = _Time()
 event = _Event()

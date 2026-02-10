@@ -5,9 +5,9 @@ from pygame import Surface
 
 
 def set_mode(size):
-    """Return a dummy Surface."""
+    """Create and return a dummy surface."""
     return Surface()
 
 
 def set_caption(title):
-    """Stub for pygame.display.set_caption()."""
+    """Set window caption (stub)."""
