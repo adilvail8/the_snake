@@ -1,9 +1,9 @@
-"""Minimal pygame.time stub for tests."""
+"""Minimal pygame.time stub for CI tests."""
 
 
 class Clock:
-    """Clock stub compatible with pygame.time.Clock."""
+    """Stub for pygame.time.Clock."""
 
     def tick(self, fps=0):
-        """Imitate frame delay and return elapsed milliseconds."""
+        """Return zero milliseconds."""
         return 0
