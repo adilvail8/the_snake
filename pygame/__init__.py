@@ -2,6 +2,7 @@
 import pygame.display
 import pygame.draw
 import pygame.event
+import pygame.key
 import pygame.rect
 import pygame.time
 
@@ -36,5 +37,6 @@ class Surface:
 display = pygame.display
 draw = pygame.draw
 event = pygame.event
+key = pygame.key
 time = pygame.time
 Rect = pygame.rect.Rect
