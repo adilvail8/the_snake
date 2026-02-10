@@ -35,12 +35,12 @@ clock = pygame.time.Clock()
 class GameObject:
     """Базовый класс игрового объекта."""
 
-    def __init__(self, position, body_color):
+    def __init__(self, position=(0, 0), body_color=(0, 0, 0)):
         self.position = position
         self.body_color = body_color
 
     def draw_cell(self, position):
-        """Отрисовать одну ячейку объекта."""
+        """Отрисовать одну ячейку."""
         rect = pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, self.body_color, rect)
         pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
@@ -113,23 +113,14 @@ class Snake(GameObject):
 
     def reset(self):
         """Сбросить состояние змейки."""
-        start_position = (
-            GRID_WIDTH // 2 * GRID_SIZE,
-            GRID_HEIGHT // 2 * GRID_SIZE,
-        )
-        self.position = start_position
-        self.positions = [start_position]
-        self.length = 1
-        self.direction = RIGHT
-        self.next_direction = None
-        self.last = None
+        self.__init__()
 
     def draw(self):
-        """Отрисовать голову и стереть хвост."""
-        # Рисуем голову
+        """Отрисовать змейку."""
+        # Рисуем только голову
         self.draw_cell(self.get_head_position())
 
-        # Затираем последний сегмент
+        # Затираем хвост
         if self.last:
             rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
             pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, rect)
@@ -149,7 +140,7 @@ def update_caption(speed, record):
     pygame.display.set_caption(caption)
 
 
-def handle_keys(game_object, current_speed):
+def handle_keys(game_object):
     """Обработать нажатия клавиш."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -161,8 +152,7 @@ def handle_keys(game_object, current_speed):
                 pygame.quit()
                 raise SystemExit
             # Управление направлением
-            if (event.key == pygame.K_UP
-                    and game_object.direction != DOWN):
+            if event.key == pygame.K_UP and game_object.direction != DOWN:
                 game_object.next_direction = UP
             elif (event.key == pygame.K_DOWN
                   and game_object.direction != UP):
@@ -173,7 +163,6 @@ def handle_keys(game_object, current_speed):
             elif (event.key == pygame.K_RIGHT
                   and game_object.direction != LEFT):
                 game_object.next_direction = RIGHT
-    return current_speed
 
 
 def handle_speed_change():
@@ -207,7 +196,7 @@ def main():
 
     while True:
         clock.tick(current_speed)
-        current_speed = handle_keys(snake, current_speed)
+        handle_keys(snake)
 
         # Изменение скорости
         speed_change = handle_speed_change()
@@ -221,7 +210,6 @@ def main():
         snake.update_direction()
         snake.move()
 
-        # Проверка поедания яблока
         if snake.get_head_position() == apple.position:
             snake.length += 1
             apple.randomize_position()
@@ -230,7 +218,6 @@ def main():
                 record_length = snake.length
                 update_caption(current_speed, record_length)
 
-        # Проверка столкновения с собой
         if snake.get_head_position() in snake.positions[1:]:
             snake.reset()
             screen.fill(BOARD_BACKGROUND_COLOR)
@@ -239,7 +226,7 @@ def main():
             pygame.display.update()
             continue
 
-        # Отрисовка (только изменения)
+        # Отрисовка только изменений
         snake.draw()
         apple.draw()
         pygame.display.update()
