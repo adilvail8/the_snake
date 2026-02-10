@@ -1,5 +1,11 @@
 """Minimal pygame stub for CI tests."""
 
+import pygame.display
+import pygame.draw
+import pygame.event
+import pygame.rect
+import pygame.time
+
 
 QUIT = 0
 KEYDOWN = 1
@@ -29,10 +35,9 @@ class Surface:
         return None
 
 
-from pygame import display as display  # noqa: E402
-from pygame import draw as draw  # noqa: E402
-from pygame import event as event  # noqa: E402
-from pygame import rect as rect  # noqa: E402
-from pygame import time as time  # noqa: E402
-
-Rect = rect.Rect
+# публичные атрибуты pygame
+display = pygame.display
+draw = pygame.draw
+event = pygame.event
+time = pygame.time
+Rect = pygame.rect.Rect
