@@ -1,11 +1,9 @@
 """Minimal pygame stub for CI tests."""
-
 import pygame.display
 import pygame.draw
 import pygame.event
 import pygame.rect
 import pygame.time
-
 
 QUIT = 0
 KEYDOWN = 1
@@ -35,7 +33,6 @@ class Surface:
         return None
 
 
-# публичные атрибуты pygame
 display = pygame.display
 draw = pygame.draw
 event = pygame.event
