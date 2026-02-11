@@ -106,13 +106,15 @@ class GameObject:
 class Apple(GameObject):
     """Класс для яблока."""
 
-    def __init__(self, occupied_positions, body_color=APPLE_COLOR):
+    def __init__(self, occupied_positions=None, body_color=APPLE_COLOR):
         """Инициализация яблока."""
         super().__init__(body_color)
-        self.randomize_position(occupied_positions)
+        self.randomize_position(occupied_positions or [])
 
-    def randomize_position(self, occupied_positions):
+    def randomize_position(self, occupied_positions=None):
         """Устанавливает случайную позицию яблока."""
+        if occupied_positions is None:
+            occupied_positions = []
         self.position = choice(tuple(ALL_CELLS - set(occupied_positions)))
 
     def draw(self):
