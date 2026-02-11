@@ -40,16 +40,16 @@ OPPOSITE_DIRECTION = {
 }
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Змейка")
+pygame.display.set_caption('Змейка')
 clock = pygame.time.Clock()
 
 
 def _set_caption(speed, best_length, paused):
     """Update window caption with helpful info."""
-    status = "PAUSE" if paused else "RUN"
+    status = 'PAUSE' if paused else 'RUN'
     pygame.display.set_caption(
-        "ESC=exit | SPACE=pause | +/- speed | "
-        f"speed={speed} | best={best_length} | {status}"
+        'ESC=exit | SPACE=pause | +/- speed | '
+        f'speed={speed} | best={best_length} | {status}'
     )
 
 
@@ -253,5 +253,5 @@ def main():
         pygame.display.update()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
