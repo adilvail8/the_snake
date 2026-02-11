@@ -1,7 +1,6 @@
 """Simple Snake game."""
 
 from random import randint
-
 import pygame
 
 
