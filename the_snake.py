@@ -1,6 +1,7 @@
 """Simple Snake game."""
 
 from random import randint
+
 import pygame
 
 
@@ -37,7 +38,7 @@ OPPOSITE_DIRECTION = {
 }
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Snake")
+pygame.display.set_caption('Snake')
 clock = pygame.time.Clock()
 
 
@@ -133,7 +134,7 @@ class Snake(GameObject):
         self.__init__()
 
     def draw(self):
-        """Draw snake."""
+        """Draw changed snake cells."""
         head = self.get_head_position()
         self._draw_cell(head, self.body_color)
 
@@ -203,5 +204,5 @@ def main():
         pygame.display.update()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
