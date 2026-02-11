@@ -1,7 +1,8 @@
 """Simple Snake game."""
 
-import pygame
 from random import randint
+
+import pygame
 
 
 SCREEN_WIDTH = 640
