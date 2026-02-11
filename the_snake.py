@@ -177,7 +177,7 @@ def update_caption(speed, record):
     pygame.display.set_caption(caption)
 
 
-def _place_apple(apple, snake):
+def place_apple(apple, snake):
     """Place apple not on snake."""
     apple.randomize_position()
     while apple.position in snake.positions:
@@ -190,7 +190,7 @@ def main():
 
     snake = Snake()
     apple = Apple()
-    _place_apple(apple, snake)
+    place_apple(apple, snake)
 
     speed = SPEED
     record = 1
@@ -214,13 +214,13 @@ def main():
             snake.length += 1
             record = max(record, snake.length)
             update_caption(speed, record)
-            _place_apple(apple, snake)
+            place_apple(apple, snake)
             apple.draw()
 
         if head in snake.positions[1:]:
             screen.fill(BOARD_BACKGROUND_COLOR)
             snake.reset()
-            _place_apple(apple, snake)
+            place_apple(apple, snake)
             apple.draw()
             update_caption(speed, record)
 
