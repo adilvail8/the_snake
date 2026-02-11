@@ -67,7 +67,7 @@ OPPOSITE_DIRECTIONS = {
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), 0, 32)
 
 # Заголовок окна игрового поля:
-pygame.display.set_caption("Змейка")
+pygame.display.set_caption('Змейка')
 
 # Настройка времени:
 clock = pygame.time.Clock()
@@ -90,7 +90,9 @@ class GameObject:
 
     def draw(self):
         """Отрисовка объекта - должна быть реализована в наследниках."""
-        raise NotImplementedError("Метод draw должен быть реализован в дочернем классе")
+        raise NotImplementedError(
+            'Метод draw должен быть реализован в дочернем классе'
+        )
 
 
 class Apple(GameObject):
@@ -196,9 +198,9 @@ def handle_keys(snake, speed):
 def update_caption(speed, record):
     """Обновление заголовка окна с информацией об игре."""
     caption = (
-        f"Змейка - Скорость: {speed} | "
-        f"Рекорд: {record} | "
-        f"ESC: выход | +/-: скорость"
+        f'Змейка - Скорость: {speed} | '
+        f'Рекорд: {record} | '
+        f'ESC: выход | +/-: скорость'
     )
     pygame.display.set_caption(caption)
 
@@ -244,5 +246,5 @@ def main():
         pygame.display.update()
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
