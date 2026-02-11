@@ -1,78 +1,107 @@
-"""Snake game implementation using Pygame."""
+"""Snake game for educational project."""
+
 from random import randint
 
 import pygame
 
-# Константы для размеров поля и сетки
-SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
+
+SCREEN_WIDTH = 640
+SCREEN_HEIGHT = 480
 GRID_SIZE = 20
 GRID_WIDTH = SCREEN_WIDTH // GRID_SIZE
 GRID_HEIGHT = SCREEN_HEIGHT // GRID_SIZE
 
-# Направления движения
 UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-# Цвета
 BOARD_BACKGROUND_COLOR = (0, 0, 0)
 BORDER_COLOR = (93, 216, 228)
 APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
-# Скорость игры
-SPEED = 10
+SPEED = 20
 MIN_SPEED = 5
-MAX_SPEED = 30
-SPEED_STEP = 5
+MAX_SPEED = 60
 
-# Экран и таймер
+KEY_TO_DIRECTION = {
+    pygame.K_UP: UP,
+    pygame.K_DOWN: DOWN,
+    pygame.K_LEFT: LEFT,
+    pygame.K_RIGHT: RIGHT,
+}
+
+OPPOSITE_DIRECTION = {
+    UP: DOWN,
+    DOWN: UP,
+    LEFT: RIGHT,
+    RIGHT: LEFT,
+}
+
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption("Змейка")
 clock = pygame.time.Clock()
 
 
-class GameObject:
-    """Базовый класс игрового объекта."""
+def _set_caption(speed, best_length, paused):
+    """Update window caption with helpful info."""
+    status = "PAUSE" if paused else "RUN"
+    pygame.display.set_caption(
+        "ESC=exit | SPACE=pause | +/- speed | "
+        f"speed={speed} | best={best_length} | {status}"
+    )
 
-    def __init__(self, position=(0, 0), body_color=(0, 0, 0)):
+
+class GameObject:
+    """Base class for game objects."""
+
+    def __init__(self, position, body_color):
+        """Create an object with position and body color."""
         self.position = position
         self.body_color = body_color
 
-    def draw_cell(self, position):
-        """Отрисовать одну ячейку."""
-        rect = pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
-        pygame.draw.rect(screen, self.body_color, rect)
-        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
-
     def draw(self):
-        """Отрисовать объект на экране."""
+        """Draw the object."""
         raise NotImplementedError
+
+    @staticmethod
+    def _cell_rect(position):
+        """Return rect for a single grid cell."""
+        return pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
+
+    def _draw_cell(self, position, color):
+        """Draw one grid cell with border."""
+        rect = self._cell_rect(position)
+        pygame.draw.rect(screen, color, rect)
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
 class Apple(GameObject):
-    """Класс яблока."""
+    """Apple that the snake eats."""
 
     def __init__(self):
+        """Create apple and place it randomly."""
         super().__init__((0, 0), APPLE_COLOR)
         self.randomize_position()
 
     def randomize_position(self):
-        """Задать случайную позицию яблока."""
+        """Place apple in a random cell."""
         self.position = (
             randint(0, GRID_WIDTH - 1) * GRID_SIZE,
             randint(0, GRID_HEIGHT - 1) * GRID_SIZE,
         )
 
     def draw(self):
-        """Отрисовать яблоко."""
-        self.draw_cell(self.position)
+        """Draw apple."""
+        self._draw_cell(self.position, self.body_color)
 
 
 class Snake(GameObject):
-    """Класс змейки."""
+    """Snake controlled by player."""
 
     def __init__(self):
+        """Create snake in the center."""
         start_position = (
             GRID_WIDTH // 2 * GRID_SIZE,
             GRID_HEIGHT // 2 * GRID_SIZE,
@@ -85,17 +114,17 @@ class Snake(GameObject):
         self.last = None
 
     def get_head_position(self):
-        """Вернуть позицию головы змейки."""
+        """Return snake head position."""
         return self.positions[0]
 
     def update_direction(self):
-        """Обновить направление движения."""
-        if self.next_direction:
+        """Apply delayed direction change."""
+        if self.next_direction is not None:
             self.direction = self.next_direction
             self.next_direction = None
 
     def move(self):
-        """Переместить змейку."""
+        """Move snake by one cell."""
         head_x, head_y = self.get_head_position()
         dir_x, dir_y = self.direction
 
@@ -103,7 +132,6 @@ class Snake(GameObject):
             (head_x + dir_x * GRID_SIZE) % SCREEN_WIDTH,
             (head_y + dir_y * GRID_SIZE) % SCREEN_HEIGHT,
         )
-
         self.positions.insert(0, new_head)
 
         if len(self.positions) > self.length:
@@ -112,125 +140,118 @@ class Snake(GameObject):
             self.last = None
 
     def reset(self):
-        """Сбросить состояние змейки."""
+        """Reset snake to initial state."""
         self.__init__()
 
     def draw(self):
-        """Отрисовать змейку."""
-        # Рисуем только голову
-        self.draw_cell(self.get_head_position())
+        """Draw only changed snake cells (head and tail)."""
+        head = self.get_head_position()
+        self._draw_cell(head, self.body_color)
 
-        # Затираем хвост
-        if self.last:
-            rect = pygame.Rect(self.last, (GRID_SIZE, GRID_SIZE))
-            pygame.draw.rect(screen, BOARD_BACKGROUND_COLOR, rect)
-
-    def draw_full(self):
-        """Отрисовать всю змейку."""
-        for position in self.positions:
-            self.draw_cell(position)
+        if self.last is not None:
+            self._draw_cell(self.last, BOARD_BACKGROUND_COLOR)
 
 
-def update_caption(speed, record):
-    """Обновить заголовок окна."""
-    caption = (
-        f'Змейка | Скорость: {speed} (↑/↓) | '
-        f'Рекорд: {record} | ESC - выход'
-    )
-    pygame.display.set_caption(caption)
+def _apply_speed_change(current_speed, delta):
+    """Change speed with limits."""
+    new_speed = current_speed + delta
+    if new_speed < MIN_SPEED:
+        return MIN_SPEED
+    if new_speed > MAX_SPEED:
+        return MAX_SPEED
+    return new_speed
 
 
-def handle_keys(game_object):
-    """Обработать нажатия клавиш."""
+def handle_keys(snake):
+    """Handle input and update snake direction."""
+    global _CURRENT_SPEED, _PAUSED
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             raise SystemExit
-        if event.type == pygame.KEYDOWN:
-            # Выход по ESC
-            if event.key == pygame.K_ESCAPE:
-                pygame.quit()
-                raise SystemExit
-            # Управление направлением
-            if event.key == pygame.K_UP and game_object.direction != DOWN:
-                game_object.next_direction = UP
-            elif (event.key == pygame.K_DOWN
-                  and game_object.direction != UP):
-                game_object.next_direction = DOWN
-            elif (event.key == pygame.K_LEFT
-                  and game_object.direction != RIGHT):
-                game_object.next_direction = LEFT
-            elif (event.key == pygame.K_RIGHT
-                  and game_object.direction != LEFT):
-                game_object.next_direction = RIGHT
+
+        if event.type != pygame.KEYDOWN:
+            continue
+
+        if event.key == pygame.K_ESCAPE:
+            pygame.quit()
+            raise SystemExit
+
+        if event.key == pygame.K_SPACE:
+            _PAUSED = not _PAUSED
+            continue
+
+        if event.key in (pygame.K_MINUS, pygame.K_KP_MINUS):
+            _CURRENT_SPEED = _apply_speed_change(_CURRENT_SPEED, -2)
+            continue
+
+        if event.key in (pygame.K_EQUALS, pygame.K_PLUS, pygame.K_KP_PLUS):
+            _CURRENT_SPEED = _apply_speed_change(_CURRENT_SPEED, 2)
+            continue
+
+        direction = KEY_TO_DIRECTION.get(event.key)
+        if direction is None:
+            continue
+
+        if direction != OPPOSITE_DIRECTION[snake.direction]:
+            snake.next_direction = direction
 
 
-def handle_speed_change():
-    """Обработать изменение скорости."""
-    keys = pygame.key.get_pressed()
-    speed_change = 0
-
-    if keys[pygame.K_PAGEUP] or keys[pygame.K_PLUS]:
-        speed_change = SPEED_STEP
-    elif keys[pygame.K_PAGEDOWN] or keys[pygame.K_MINUS]:
-        speed_change = -SPEED_STEP
-
-    return speed_change
+def _place_apple_not_on_snake(apple, snake):
+    """Reposition apple until it is not on the snake."""
+    apple.randomize_position()
+    while apple.position in snake.positions:
+        apple.randomize_position()
 
 
 def main():
-    """Основной игровой цикл."""
+    """Run the game loop."""
+    global _CURRENT_SPEED, _PAUSED
+
     pygame.init()
+    _CURRENT_SPEED = SPEED
+    _PAUSED = False
+    best_length = 1
 
     snake = Snake()
     apple = Apple()
-    current_speed = SPEED
-    record_length = 1
+    _place_apple_not_on_snake(apple, snake)
 
-    # Первая отрисовка
     screen.fill(BOARD_BACKGROUND_COLOR)
-    snake.draw_full()
     apple.draw()
-    update_caption(current_speed, record_length)
+    snake.draw()
     pygame.display.update()
 
     while True:
-        clock.tick(current_speed)
+        clock.tick(_CURRENT_SPEED)
         handle_keys(snake)
+        _set_caption(_CURRENT_SPEED, best_length, _PAUSED)
 
-        # Изменение скорости
-        speed_change = handle_speed_change()
-        if speed_change:
-            current_speed = max(
-                MIN_SPEED,
-                min(MAX_SPEED, current_speed + speed_change)
-            )
-            update_caption(current_speed, record_length)
+        if _PAUSED:
+            continue
 
         snake.update_direction()
         snake.move()
 
-        if snake.get_head_position() == apple.position:
+        head = snake.get_head_position()
+        if head == apple.position:
             snake.length += 1
-            apple.randomize_position()
-            # Обновляем рекорд
-            if snake.length > record_length:
-                record_length = snake.length
-                update_caption(current_speed, record_length)
-
-        if snake.get_head_position() in snake.positions[1:]:
-            snake.reset()
-            screen.fill(BOARD_BACKGROUND_COLOR)
-            snake.draw_full()
+            if snake.length > best_length:
+                best_length = snake.length
+            _place_apple_not_on_snake(apple, snake)
             apple.draw()
-            pygame.display.update()
-            continue
 
-        # Отрисовка только изменений
+        if head in snake.positions[1:]:
+            best_length = max(best_length, snake.length)
+            screen.fill(BOARD_BACKGROUND_COLOR)
+            snake.reset()
+            _place_apple_not_on_snake(apple, snake)
+            apple.draw()
+
         snake.draw()
-        apple.draw()
         pygame.display.update()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
