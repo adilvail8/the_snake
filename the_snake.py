@@ -1,7 +1,7 @@
 """Simple Snake game."""
 
-from random import randint
 import pygame
+from random import randint
 
 
 SCREEN_WIDTH = 640
@@ -20,7 +20,10 @@ BORDER_COLOR = (93, 216, 228)
 APPLE_COLOR = (255, 0, 0)
 SNAKE_COLOR = (0, 255, 0)
 
-SPEED = 20
+SPEED = 10
+SPEED_CHANGE = 2
+MIN_SPEED = 5
+MAX_SPEED = 30
 
 KEY_TO_DIRECTION = {
     pygame.K_UP: UP,
@@ -37,32 +40,27 @@ OPPOSITE_DIRECTION = {
 }
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption('Snake')
 clock = pygame.time.Clock()
 
 
 class GameObject:
     """Base game object."""
 
-    def __init__(self, position, body_color):
+    def __init__(self, body_color=None):
         """Initialize object."""
-        self.position = position
+        self.position = (0, 0)
         self.body_color = body_color
 
-    def draw(self):
-        """Draw object."""
-        raise NotImplementedError
-
-    @staticmethod
-    def _rect(position):
-        """Return grid rect."""
-        return pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
-
-    def _draw_cell(self, position, color):
-        """Draw one cell."""
-        rect = self._rect(position)
+    def draw_cell(self, position, color=None):
+        """Draw one cell with object's color."""
+        if color is None:
+            color = self.body_color
+        rect = pygame.Rect(position, (GRID_SIZE, GRID_SIZE))
         pygame.draw.rect(screen, color, rect)
-        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
+
+    def draw(self):
+        """Draw object - must be implemented in child classes."""
+        raise NotImplementedError
 
 
 class Apple(GameObject):
@@ -70,7 +68,7 @@ class Apple(GameObject):
 
     def __init__(self):
         """Create apple."""
-        super().__init__((0, 0), APPLE_COLOR)
+        super().__init__(APPLE_COLOR)
         self.randomize_position()
 
     def randomize_position(self):
@@ -81,8 +79,10 @@ class Apple(GameObject):
         )
 
     def draw(self):
-        """Draw apple."""
-        self._draw_cell(self.position, self.body_color)
+        """Draw apple with border."""
+        self.draw_cell(self.position)
+        rect = pygame.Rect(self.position, (GRID_SIZE, GRID_SIZE))
+        pygame.draw.rect(screen, BORDER_COLOR, rect, 1)
 
 
 class Snake(GameObject):
@@ -90,11 +90,11 @@ class Snake(GameObject):
 
     def __init__(self):
         """Create snake."""
+        super().__init__(SNAKE_COLOR)
         start_position = (
             GRID_WIDTH // 2 * GRID_SIZE,
             GRID_HEIGHT // 2 * GRID_SIZE,
         )
-        super().__init__(start_position, SNAKE_COLOR)
         self.positions = [start_position]
         self.length = 1
         self.direction = RIGHT
@@ -133,16 +133,15 @@ class Snake(GameObject):
         self.__init__()
 
     def draw(self):
-        """Draw changed snake cells."""
-        head = self.get_head_position()
-        self._draw_cell(head, self.body_color)
+        """Draw only changed cells: new head and old tail."""
+        self.draw_cell(self.get_head_position())
 
         if self.last is not None:
-            self._draw_cell(self.last, BOARD_BACKGROUND_COLOR)
+            self.draw_cell(self.last, BOARD_BACKGROUND_COLOR)
 
 
-def handle_keys(snake):
-    """Handle keyboard."""
+def handle_keys(snake, speed):
+    """Handle keyboard and return new speed."""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -153,10 +152,29 @@ def handle_keys(snake):
                 pygame.quit()
                 raise SystemExit
 
+            # Speed control
+            if event.key == pygame.K_PLUS or event.key == pygame.K_EQUALS:
+                speed = min(speed + SPEED_CHANGE, MAX_SPEED)
+            elif event.key == pygame.K_MINUS:
+                speed = max(speed - SPEED_CHANGE, MIN_SPEED)
+
+            # Direction control
             direction = KEY_TO_DIRECTION.get(event.key)
             if direction is not None:
                 if direction != OPPOSITE_DIRECTION[snake.direction]:
                     snake.next_direction = direction
+
+    return speed
+
+
+def update_caption(speed, record):
+    """Update window caption with game info."""
+    caption = (
+        f'Змейка - Скорость: {speed} | '
+        f'Рекорд: {record} | '
+        f'ESC: выход | +/-: скорость'
+    )
+    pygame.display.set_caption(caption)
 
 
 def _place_apple(apple, snake):
@@ -174,14 +192,18 @@ def main():
     apple = Apple()
     _place_apple(apple, snake)
 
+    speed = SPEED
+    record = 1
+
     screen.fill(BOARD_BACKGROUND_COLOR)
     apple.draw()
     snake.draw()
+    update_caption(speed, record)
     pygame.display.update()
 
     while True:
-        clock.tick(SPEED)
-        handle_keys(snake)
+        clock.tick(speed)
+        speed = handle_keys(snake, speed)
 
         snake.update_direction()
         snake.move()
@@ -190,6 +212,8 @@ def main():
 
         if head == apple.position:
             snake.length += 1
+            record = max(record, snake.length)
+            update_caption(speed, record)
             _place_apple(apple, snake)
             apple.draw()
 
@@ -198,6 +222,7 @@ def main():
             snake.reset()
             _place_apple(apple, snake)
             apple.draw()
+            update_caption(speed, record)
 
         snake.draw()
         pygame.display.update()
